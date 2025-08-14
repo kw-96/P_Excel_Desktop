@@ -3,7 +3,7 @@
  * 负责应用生命周期管理和窗口创建
  */
 
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 const path = require('path');
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -16,6 +16,7 @@ const ResourceMonitor = require('./resourceMonitor');
 class P_ExcelApp {
     constructor() {
         this.mainWindow = null;
+        this.tray = null;
         this.appManager = new AppManager();
         this.fileSystemManager = new FileSystemManager();
         this.ipcManager = new IPCManager();
@@ -69,6 +70,9 @@ class P_ExcelApp {
 
             // 设置应用菜单
             this.setupMenu();
+
+            // 设置系统托盘
+            this.setupSystemTray();
 
             console.log('P_Excel桌面版启动成功');
         } catch (error) {
@@ -209,6 +213,77 @@ class P_ExcelApp {
 
         const menu = Menu.buildFromTemplate(template);
         Menu.setApplicationMenu(menu);
+    }
+
+    /**
+     * 设置系统托盘
+     */
+    setupSystemTray() {
+        // 创建托盘图标
+        const trayIconPath = path.join(__dirname, '../../build/tray-icon.png');
+        this.tray = new Tray(trayIconPath);
+
+        // 设置托盘提示
+        this.tray.setToolTip('P_Excel桌面版');
+
+        // 创建托盘菜单
+        const contextMenu = Menu.buildFromTemplate([
+            {
+                label: '显示主窗口',
+                click: () => {
+                    if (this.mainWindow) {
+                        if (this.mainWindow.isMinimized()) {
+                            this.mainWindow.restore();
+                        }
+                        this.mainWindow.show();
+                        this.mainWindow.focus();
+                    } else {
+                        this.createMainWindow();
+                    }
+                }
+            },
+            {
+                label: '隐藏窗口',
+                click: () => {
+                    if (this.mainWindow) {
+                        this.mainWindow.hide();
+                    }
+                }
+            },
+            { type: 'separator' },
+            {
+                label: '打开文件',
+                click: () => {
+                    this.ipcManager.sendToRenderer('menu:open-file');
+                }
+            },
+            { type: 'separator' },
+            {
+                label: '退出',
+                click: () => {
+                    app.quit();
+                }
+            }
+        ]);
+
+        // 设置托盘菜单
+        this.tray.setContextMenu(contextMenu);
+
+        // 双击托盘图标显示/隐藏窗口
+        this.tray.on('double-click', () => {
+            if (this.mainWindow) {
+                if (this.mainWindow.isVisible()) {
+                    this.mainWindow.hide();
+                } else {
+                    this.mainWindow.show();
+                    this.mainWindow.focus();
+                }
+            } else {
+                this.createMainWindow();
+            }
+        });
+
+        console.log('系统托盘设置完成');
     }
 
     /**
