@@ -4,33 +4,12 @@
 
 const { app } = require('electron');
 const path = require('path');
-const fs = require('fs').promises;
 const os = require('os');
+const ConfigManager = require('./configManager');
 
 class AppManager {
     constructor() {
-        this.config = null;
-        this.configPath = path.join(os.homedir(), '.p-excel', 'config.json');
-        this.defaultConfig = {
-            performance: {
-                maxMemoryUsage: '4GB',
-                maxCacheSize: '2GB',
-                workerThreads: os.cpus().length,
-                chunkSize: 100000,
-                enableCompression: true
-            },
-            ui: {
-                theme: 'light',
-                language: 'zh-CN',
-                previewRows: 1000,
-                enableAnimations: true
-            },
-            security: {
-                enableEncryption: false,
-                autoCleanup: true,
-                maxFileSize: '10GB'
-            }
-        };
+        this.configManager = null;
     }
 
     /**
@@ -38,11 +17,9 @@ class AppManager {
      */
     async initialize() {
         try {
-            // 创建配置目录
-            await this.ensureConfigDirectory();
-            
-            // 加载配置
-            await this.loadConfig();
+            // 初始化配置管理器
+            this.configManager = new ConfigManager();
+            await this.configManager.initialize();
             
             // 设置应用信息
             this.setupAppInfo();
@@ -54,57 +31,7 @@ class AppManager {
         }
     }
 
-    /**
-     * 确保配置目录存在
-     */
-    async ensureConfigDirectory() {
-        const configDir = path.dirname(this.configPath);
-        try {
-            await fs.access(configDir);
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                await fs.mkdir(configDir, { recursive: true });
-                console.log('创建配置目录:', configDir);
-            } else {
-                throw error;
-            }
-        }
-    }
 
-    /**
-     * 加载配置文件
-     */
-    async loadConfig() {
-        try {
-            const configData = await fs.readFile(this.configPath, 'utf8');
-            this.config = { ...this.defaultConfig, ...JSON.parse(configData) };
-            console.log('配置文件加载成功');
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                // 配置文件不存在，使用默认配置
-                this.config = { ...this.defaultConfig };
-                await this.saveConfig();
-                console.log('使用默认配置并保存');
-            } else {
-                console.error('配置文件加载失败:', error);
-                this.config = { ...this.defaultConfig };
-            }
-        }
-    }
-
-    /**
-     * 保存配置文件
-     */
-    async saveConfig() {
-        try {
-            const configData = JSON.stringify(this.config, null, 2);
-            await fs.writeFile(this.configPath, configData, 'utf8');
-            console.log('配置文件保存成功');
-        } catch (error) {
-            console.error('配置文件保存失败:', error);
-            throw error;
-        }
-    }
 
     /**
      * 设置应用信息
@@ -132,34 +59,37 @@ class AppManager {
      * 获取配置
      */
     getConfig(key = null) {
-        if (key) {
-            return this.config[key];
-        }
-        return this.config;
+        if (!this.configManager) return null;
+        return this.configManager.get(key);
     }
 
     /**
      * 更新配置
      */
     async updateConfig(key, value) {
+        if (!this.configManager) return false;
+        
         if (typeof key === 'object') {
             // 批量更新
-            this.config = { ...this.config, ...key };
+            for (const [k, v] of Object.entries(key)) {
+                this.configManager.set(k, v);
+            }
         } else {
             // 单个更新
-            this.config[key] = value;
+            this.configManager.set(key, value);
         }
         
-        await this.saveConfig();
+        return true;
     }
 
     /**
      * 重置配置为默认值
      */
-    async resetConfig() {
-        this.config = { ...this.defaultConfig };
-        await this.saveConfig();
+    async resetConfig(section = null) {
+        if (!this.configManager) return false;
+        await this.configManager.reset(section);
         console.log('配置已重置为默认值');
+        return true;
     }
 
     /**
@@ -204,8 +134,10 @@ class AppManager {
      */
     async cleanup() {
         try {
-            // 保存当前配置
-            await this.saveConfig();
+            // 清理配置管理器
+            if (this.configManager) {
+                await this.configManager.cleanup();
+            }
             console.log('应用管理器清理完成');
         } catch (error) {
             console.error('应用管理器清理失败:', error);

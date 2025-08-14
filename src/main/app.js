@@ -9,6 +9,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // 应用管理器
 const AppManager = require('./appManager');
+const ConfigManager = require('./configManager');
 const FileSystemManager = require('./fileSystemManager');
 const IPCManager = require('./ipcManager');
 const ResourceMonitor = require('./resourceMonitor');
@@ -61,6 +62,10 @@ class P_ExcelApp {
         try {
             // 初始化各个管理器
             await this.appManager.initialize();
+            
+            // 设置全局引用供IPC使用
+            global.appManager = this.appManager;
+            
             await this.fileSystemManager.initialize();
             await this.ipcManager.initialize();
             await this.resourceMonitor.initialize();

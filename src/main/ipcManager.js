@@ -44,6 +44,9 @@ class IPCManager {
         // 配置管理
         this.registerChannel('config:get', this.handleConfigGet.bind(this));
         this.registerChannel('config:set', this.handleConfigSet.bind(this));
+        this.registerChannel('config:reset', this.handleConfigReset.bind(this));
+        this.registerChannel('config:export', this.handleConfigExport.bind(this));
+        this.registerChannel('config:import', this.handleConfigImport.bind(this));
         
         // 窗口控制
         this.registerChannel('window:minimize', this.handleWindowMinimize.bind(this));
@@ -249,21 +252,13 @@ class IPCManager {
      */
     async handleConfigGet(event, key) {
         try {
-            // 这里应该从AppManager获取配置
-            // 暂时返回默认配置
-            const defaultConfig = {
-                performance: {
-                    maxMemoryUsage: '4GB',
-                    workerThreads: require('os').cpus().length,
-                    chunkSize: 100000
-                },
-                ui: {
-                    theme: 'light',
-                    language: 'zh-CN'
-                }
-            };
+            // 从全局应用管理器获取配置
+            const appManager = global.appManager;
+            if (!appManager) {
+                throw new Error('应用管理器未初始化');
+            }
 
-            return key ? defaultConfig[key] : defaultConfig;
+            return appManager.getConfig(key);
 
         } catch (error) {
             console.error('获取配置失败:', error);
@@ -276,12 +271,104 @@ class IPCManager {
      */
     async handleConfigSet(event, key, value) {
         try {
-            // 这里应该调用AppManager设置配置
-            console.log('设置配置:', key, value);
-            return { success: true };
+            // 调用全局应用管理器设置配置
+            const appManager = global.appManager;
+            if (!appManager) {
+                throw new Error('应用管理器未初始化');
+            }
+
+            const success = await appManager.updateConfig(key, value);
+            return { success };
 
         } catch (error) {
             console.error('设置配置失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 处理配置重置
+     */
+    async handleConfigReset(event, section) {
+        try {
+            const appManager = global.appManager;
+            if (!appManager) {
+                throw new Error('应用管理器未初始化');
+            }
+
+            const success = await appManager.resetConfig(section);
+            return { success };
+
+        } catch (error) {
+            console.error('重置配置失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 处理配置导出
+     */
+    async handleConfigExport(event, filePath) {
+        try {
+            const appManager = global.appManager;
+            if (!appManager || !appManager.configManager) {
+                throw new Error('配置管理器未初始化');
+            }
+
+            if (!filePath) {
+                const { dialog } = require('electron');
+                const result = await dialog.showSaveDialog({
+                    title: '导出配置',
+                    defaultPath: 'p-excel-config.json',
+                    filters: [{ name: 'JSON文件', extensions: ['json'] }]
+                });
+
+                if (result.canceled) {
+                    return { success: false, canceled: true };
+                }
+
+                filePath = result.filePath;
+            }
+
+            await appManager.configManager.exportConfig(filePath);
+            return { success: true, filePath };
+
+        } catch (error) {
+            console.error('导出配置失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 处理配置导入
+     */
+    async handleConfigImport(event, filePath) {
+        try {
+            const appManager = global.appManager;
+            if (!appManager || !appManager.configManager) {
+                throw new Error('配置管理器未初始化');
+            }
+
+            if (!filePath) {
+                const { dialog } = require('electron');
+                const result = await dialog.showOpenDialog({
+                    title: '导入配置',
+                    filters: [{ name: 'JSON文件', extensions: ['json'] }],
+                    properties: ['openFile']
+                });
+
+                if (result.canceled) {
+                    return { success: false, canceled: true };
+                }
+
+                filePath = result.filePaths[0];
+            }
+
+            await appManager.configManager.importConfig(filePath);
+            return { success: true, filePath };
+
+        } catch (error) {
+            console.error('导入配置失败:', error);
             throw error;
         }
     }

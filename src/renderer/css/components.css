@@ -1,0 +1,533 @@
+/**
+ * 增强UI组件样式
+ */
+
+/* 虚拟滚动组件 */
+.virtual-scroll {
+    position: relative;
+    overflow: auto;
+    height: 100%;
+}
+
+.virtual-scroll-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    will-change: transform;
+}
+
+.virtual-scroll-item {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid hsl(var(--b3));
+    background-color: hsl(var(--b1));
+    transition: background-color 0.2s ease;
+}
+
+.virtual-scroll-item:hover {
+    background-color: hsl(var(--b2));
+}
+
+/* 进度监控组件 */
+.progress-monitor {
+    background-color: hsl(var(--b1));
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-section {
+    margin-bottom: 20px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progress-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: hsl(var(--bc));
+}
+
+.progress-percentage {
+    font-size: 18px;
+    font-weight: bold;
+    color: hsl(var(--p));
+}
+
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background-color: hsl(var(--b3));
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 100%;
+    background-color: hsl(var(--b3));
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: hsl(var(--p));
+    border-radius: 4px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    width: 0%;
+}
+
+.progress-fill.progress-danger {
+    background-color: hsl(var(--er));
+}
+
+.progress-fill.progress-warning {
+    background-color: hsl(var(--wa));
+}
+
+.progress-fill.progress-info {
+    background-color: hsl(var(--in));
+}
+
+.progress-fill.progress-success {
+    background-color: hsl(var(--su));
+}
+
+.progress-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: hsl(var(--bc) / 0.7);
+}
+
+.progress-stage {
+    font-weight: 500;
+}
+
+.progress-eta {
+    font-style: italic;
+}
+
+/* 资源监控 */
+.resource-section {
+    margin-bottom: 20px;
+}
+
+.resource-item {
+    margin-bottom: 12px;
+}
+
+.resource-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.resource-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: hsl(var(--bc));
+}
+
+.resource-value {
+    font-size: 12px;
+    color: hsl(var(--bc) / 0.8);
+}
+
+.resource-bar {
+    width: 100%;
+    height: 6px;
+    background-color: hsl(var(--b3));
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.resource-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    width: 0%;
+}
+
+.resource-fill.fill-success {
+    background-color: hsl(var(--su));
+}
+
+.resource-fill.fill-warning {
+    background-color: hsl(var(--wa));
+}
+
+.resource-fill.fill-danger {
+    background-color: hsl(var(--er));
+}
+
+.memory-fill {
+    background-color: hsl(var(--in));
+}
+
+.cpu-fill {
+    background-color: hsl(var(--ac));
+}
+
+/* 监控控制 */
+.monitor-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 批量处理组件 */
+.batch-processor {
+    background-color: hsl(var(--b1));
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.batch-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: hsl(var(--bc));
+}
+
+.batch-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.stat-label {
+    color: hsl(var(--bc) / 0.7);
+}
+
+.stat-value {
+    font-weight: 600;
+    color: hsl(var(--bc));
+}
+
+.batch-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.batch-settings {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.concurrent-input {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid hsl(var(--b3));
+    border-radius: 4px;
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc));
+}
+
+.batch-progress {
+    margin-bottom: 20px;
+}
+
+.progress-bar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: hsl(var(--bc));
+    min-width: 40px;
+}
+
+/* 队列区域 */
+.batch-queue {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.queue-section {
+    background-color: hsl(var(--b2));
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.section-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: hsl(var(--bc));
+    border-bottom: 1px solid hsl(var(--b3));
+    padding-bottom: 8px;
+}
+
+.queue-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 任务项 */
+.task-item {
+    background-color: hsl(var(--b1));
+    border: 1px solid hsl(var(--b3));
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    border-color: hsl(var(--bc) / 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-info {
+    margin-bottom: 8px;
+}
+
+.task-name {
+    font-weight: 600;
+    color: hsl(var(--bc));
+    margin-bottom: 4px;
+}
+
+.task-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.task-type {
+    color: hsl(var(--bc) / 0.7);
+    background-color: hsl(var(--b3));
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.task-status {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.status-waiting {
+    background-color: hsl(var(--b3));
+    color: hsl(var(--bc));
+}
+
+.status-processing {
+    background-color: hsl(var(--in) / 0.2);
+    color: hsl(var(--in));
+}
+
+.status-completed {
+    background-color: hsl(var(--su) / 0.2);
+    color: hsl(var(--su));
+}
+
+.status-failed {
+    background-color: hsl(var(--er) / 0.2);
+    color: hsl(var(--er));
+}
+
+.status-cancelled {
+    background-color: hsl(var(--wa) / 0.2);
+    color: hsl(var(--wa));
+}
+
+.task-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.progress-bar-small {
+    flex: 1;
+    height: 4px;
+    background-color: hsl(var(--b3));
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill-small {
+    height: 100%;
+    background-color: hsl(var(--p));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text-small {
+    font-size: 11px;
+    color: hsl(var(--bc) / 0.7);
+    min-width: 30px;
+}
+
+.task-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .batch-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .batch-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .batch-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .batch-settings {
+        margin-left: 0;
+    }
+    
+    .batch-queue {
+        grid-template-columns: 1fr;
+    }
+    
+    .task-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .task-actions {
+        justify-content: flex-start;
+    }
+}
+
+/* 滚动条样式 */
+.queue-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.queue-list::-webkit-scrollbar-track {
+    background: hsl(var(--b3));
+    border-radius: 3px;
+}
+
+.queue-list::-webkit-scrollbar-thumb {
+    background: hsl(var(--bc) / 0.3);
+    border-radius: 3px;
+}
+
+.queue-list::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--bc) / 0.5);
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.task-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* 加载状态 */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid hsl(var(--b3));
+    border-radius: 50%;
+    border-top-color: hsl(var(--p));
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 工具提示 */
+.tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: hsl(var(--n));
+    color: hsl(var(--nc));
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.tooltip:hover::before {
+    opacity: 1;
+}
