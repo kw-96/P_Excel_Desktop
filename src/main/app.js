@@ -1,0 +1,232 @@
+/**
+ * P_Excel桌面版 - 主进程入口文件
+ * 负责应用生命周期管理和窗口创建
+ */
+
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const path = require('path');
+const isDev = process.env.NODE_ENV === 'development';
+
+// 应用管理器
+const AppManager = require('./appManager');
+const FileSystemManager = require('./fileSystemManager');
+const IPCManager = require('./ipcManager');
+const ResourceMonitor = require('./resourceMonitor');
+
+class P_ExcelApp {
+    constructor() {
+        this.mainWindow = null;
+        this.appManager = new AppManager();
+        this.fileSystemManager = new FileSystemManager();
+        this.ipcManager = new IPCManager();
+        this.resourceMonitor = new ResourceMonitor();
+        
+        this.setupEventHandlers();
+    }
+
+    /**
+     * 设置应用事件处理器
+     */
+    setupEventHandlers() {
+        // 应用准备就绪
+        app.whenReady().then(() => {
+            this.initialize();
+        });
+
+        // 所有窗口关闭
+        app.on('window-all-closed', () => {
+            if (process.platform !== 'darwin') {
+                app.quit();
+            }
+        });
+
+        // 应用激活（macOS）
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                this.createMainWindow();
+            }
+        });
+
+        // 应用退出前
+        app.on('before-quit', async () => {
+            await this.cleanup();
+        });
+    }
+
+    /**
+     * 初始化应用
+     */
+    async initialize() {
+        try {
+            // 初始化各个管理器
+            await this.appManager.initialize();
+            await this.fileSystemManager.initialize();
+            await this.ipcManager.initialize();
+            await this.resourceMonitor.initialize();
+
+            // 创建主窗口
+            this.createMainWindow();
+
+            // 设置应用菜单
+            this.setupMenu();
+
+            console.log('P_Excel桌面版启动成功');
+        } catch (error) {
+            console.error('应用初始化失败:', error);
+            app.quit();
+        }
+    }
+
+    /**
+     * 创建主窗口
+     */
+    createMainWindow() {
+        this.mainWindow = new BrowserWindow({
+            width: 1200,
+            height: 800,
+            minWidth: 800,
+            minHeight: 600,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                enableRemoteModule: false,
+                preload: path.join(__dirname, '../renderer/preload.js')
+            },
+            icon: path.join(__dirname, '../../build/icon.png'),
+            show: false, // 先隐藏，加载完成后显示
+            titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default'
+        });
+
+        // 加载渲染进程页面
+        const indexPath = path.join(__dirname, '../renderer/index.html');
+        this.mainWindow.loadFile(indexPath);
+
+        // 窗口准备显示时
+        this.mainWindow.once('ready-to-show', () => {
+            this.mainWindow.show();
+            
+            // 开发模式下打开开发者工具
+            if (isDev) {
+                this.mainWindow.webContents.openDevTools();
+            }
+        });
+
+        // 窗口关闭时
+        this.mainWindow.on('closed', () => {
+            this.mainWindow = null;
+        });
+
+        return this.mainWindow;
+    }
+
+    /**
+     * 设置应用菜单
+     */
+    setupMenu() {
+        const template = [
+            {
+                label: '文件',
+                submenu: [
+                    {
+                        label: '打开文件',
+                        accelerator: 'CmdOrCtrl+O',
+                        click: () => {
+                            this.ipcManager.sendToRenderer('menu:open-file');
+                        }
+                    },
+                    {
+                        label: '保存',
+                        accelerator: 'CmdOrCtrl+S',
+                        click: () => {
+                            this.ipcManager.sendToRenderer('menu:save');
+                        }
+                    },
+                    { type: 'separator' },
+                    {
+                        label: '退出',
+                        accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+                        click: () => {
+                            app.quit();
+                        }
+                    }
+                ]
+            },
+            {
+                label: '编辑',
+                submenu: [
+                    { label: '撤销', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
+                    { label: '重做', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
+                    { type: 'separator' },
+                    { label: '剪切', accelerator: 'CmdOrCtrl+X', role: 'cut' },
+                    { label: '复制', accelerator: 'CmdOrCtrl+C', role: 'copy' },
+                    { label: '粘贴', accelerator: 'CmdOrCtrl+V', role: 'paste' }
+                ]
+            },
+            {
+                label: '视图',
+                submenu: [
+                    { label: '重新加载', accelerator: 'CmdOrCtrl+R', role: 'reload' },
+                    { label: '强制重新加载', accelerator: 'CmdOrCtrl+Shift+R', role: 'forceReload' },
+                    { label: '开发者工具', accelerator: 'F12', role: 'toggleDevTools' },
+                    { type: 'separator' },
+                    { label: '实际大小', accelerator: 'CmdOrCtrl+0', role: 'resetZoom' },
+                    { label: '放大', accelerator: 'CmdOrCtrl+Plus', role: 'zoomIn' },
+                    { label: '缩小', accelerator: 'CmdOrCtrl+-', role: 'zoomOut' },
+                    { type: 'separator' },
+                    { label: '全屏', accelerator: 'F11', role: 'togglefullscreen' }
+                ]
+            },
+            {
+                label: '帮助',
+                submenu: [
+                    {
+                        label: '关于',
+                        click: () => {
+                            this.ipcManager.sendToRenderer('menu:about');
+                        }
+                    }
+                ]
+            }
+        ];
+
+        // macOS特殊处理
+        if (process.platform === 'darwin') {
+            template.unshift({
+                label: app.getName(),
+                submenu: [
+                    { label: '关于 ' + app.getName(), role: 'about' },
+                    { type: 'separator' },
+                    { label: '服务', role: 'services', submenu: [] },
+                    { type: 'separator' },
+                    { label: '隐藏 ' + app.getName(), accelerator: 'Command+H', role: 'hide' },
+                    { label: '隐藏其他', accelerator: 'Command+Shift+H', role: 'hideothers' },
+                    { label: '显示全部', role: 'unhide' },
+                    { type: 'separator' },
+                    { label: '退出', accelerator: 'Command+Q', click: () => app.quit() }
+                ]
+            });
+        }
+
+        const menu = Menu.buildFromTemplate(template);
+        Menu.setApplicationMenu(menu);
+    }
+
+    /**
+     * 应用清理
+     */
+    async cleanup() {
+        try {
+            await this.resourceMonitor.cleanup();
+            await this.fileSystemManager.cleanup();
+            await this.appManager.cleanup();
+            console.log('应用清理完成');
+        } catch (error) {
+            console.error('应用清理失败:', error);
+        }
+    }
+}
+
+// 创建应用实例
+const p_excelApp = new P_ExcelApp();
+
+module.exports = P_ExcelApp;

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuleXcel</title>
+    
+    <!-- daisyUI CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/components/ruleConfig.css">
+    
+    <!-- 第三方库 -->
+    <script src="libs/xlsx.min.js"></script>
+    <script src="libs/arquero.min.js"></script>
+    <script src="libs/json-logic.min.js"></script>
+</head>
+<body class="min-h-screen bg-base-100">
+    <!-- 导航栏 -->
+    <div class="navbar bg-gradient-to-r from-primary to-secondary text-primary-content shadow-lg">
+        <div class="navbar-start">
+            <div class="flex items-center gap-3 ml-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8  rounded-lg flex items-center justify-center">
+                        <span class="text-xl"></span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">RuleXcel</h1>
+                        <p class="text-xs opacity-75">表格数据批量处理工具</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-center hidden lg:flex">
+            <div class="text-center">
+                <div class="text-sm font-medium"></div>
+                <div class="text-xs opacity-75"></div>
+            </div>
+        </div>
+        <div class="navbar-end">
+            <div class="flex items-center ">
+                <div class="text-sm font-bold">渠道美术制作</div>
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zM12 13a1 1 0 110-2 1 1 0 010 2zM12 20a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                    </div>
+                    <ul tabindex="0" class="dropdown-content menu pb-0 shadow bg-base-100 rounded-box w-48 text-base-content">
+                        <li><a href="#about">🔍 关于项目</a></li>
+                        <li><a href="#help">❓ 使用帮助</a></li>
+                        <li><a href="https://github.com/user/RuleXcel" target="_blank" rel="noopener">🔗 GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="w-8 h-8  rounded-lg flex items-center justify-center">
+                <span class="text-xl"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto p-6 max-w-6xl">
+        <!-- 上方响应式布局 -->
+        <div class="flex gap-4 mb-4">
+            <!-- 文件上传区域 - 左侧，占据50%宽度 -->
+            <div class="flex-1 card bg-white shadow-xl min-h-96">
+                <div class="card-body text-center" style="padding-left: 3rem; padding-right: 3rem;">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="text-2xl">📁</span>
+                        <h2 class="text-2xl font-bold text-gray-800">文件上传</h2>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">支持Excel和CSV文件，可批量选择</p>
+                    <div id="file-upload-area" class="flex-1 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-primary transition-colors cursor-pointer" style="padding-top: 2rem; padding-bottom: 2rem;">
+                        <div class="text-center w-full">
+                            <input type="file" id="file-input" class="hidden" multiple accept=".xlsx,.xls,.csv" title="选择文件" aria-label="选择文件">
+                            <!-- 文件图标 -->
+                            <div class="mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <button id="browse-files" class="btn btn-primary mb-6">
+                                选择文件
+                            </button>
+                            <!-- 文件大小限制说明 -->
+                            <p class="text-xs text-gray-500 mt-3">单次文件总大小不超过10MB</p>
+                        </div>
+                    </div>
+                    <div id="file-list" class="mt-4 hidden">
+                        <h3 class="font-medium mb-2">已选择的文件：</h3>
+                        <div id="file-items" class="space-y-2 max-h-40 overflow-y-auto overflow-x-hidden border border-gray-200 rounded-lg p-2 bg-gray-50"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧区域 - 占据50%宽度，内部上下分布 -->
+            <div class="flex-1 flex flex-col gap-4">
+                <!-- 快捷操作区域 -->
+                <div class="card bg-white shadow-xl flex-1">
+                    <div class="card-body text-center flex flex-col justify-center h-full">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span class="text-2xl">⚡</span>
+                            <h2 class="text-2xl font-bold text-gray-800">快捷操作</h2>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4">常用的数据处理快捷功能</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="quick-month-filter" class="btn btn-primary">
+                                筛选月份数据
+                            </button>
+                            <button id="quick-quality-extract" class="btn btn-secondary">
+                                提取月份优质资源位
+                            </button>
+                            <p class="text-sm text-gray-600 mb-4">自动清除F列无用数据</p>
+                            <p class="text-sm text-gray-600 mb-4">筛选F列>G列数据</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据概览区域 -->
+                <div class="card bg-white shadow-xl flex-1">
+                    <div class="card-body text-center flex flex-col justify-center h-full">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span class="text-2xl">📊</span>
+                            <h2 class="text-2xl font-bold text-gray-800">数据概览</h2>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4">实时显示文件和数据统计信息</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-primary" id="file-count">0</div>
+                                <div class="text-gray-600 text-sm">文件数量</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-secondary" id="record-count">0</div>
+                                <div class="text-gray-600 text-sm">记录数</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据处理规则区域 -->
+        <div class="card bg-white shadow-xl mb-4">
+            <div class="card-body">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <span class="text-2xl">⚙️</span>
+                    <h2 class="text-2xl font-bold text-gray-800">数据处理规则</h2>
+                </div>
+                <p class="text-sm text-gray-600 text-center mb-6">可视化配置数据处理流程，无需编程技能<br>（可单个环节处理原始数据或组合处理数据）</p>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button id="mergeBtn" class="btn btn-outline btn-lg">
+                        <span class="text-2xl">🔗</span>
+                        <div class="text-left">
+                            <div class="font-bold">合并表格</div>
+                            <div class="text-xs opacity-70">多表合并</div>
+                        </div>
+                    </button>
+                    <button id="filterBtn" class="btn btn-outline btn-lg">
+                        <span class="text-2xl">🔍</span>
+                        <div class="text-left">
+                            <div class="font-bold">筛选数据</div>
+                            <div class="text-xs opacity-70">按条件筛选</div>
+                        </div>
+                    </button>
+                    <button id="processBtn" class="btn btn-outline btn-lg">
+                        <span class="text-2xl">📝</span>
+                        <div class="text-left">
+                            <div class="font-bold">处理列</div>
+                            <div class="text-xs opacity-70">简单计算</div>
+                        </div>
+                    </button>
+                    <button id="sortBtn" class="btn btn-outline btn-lg">
+                        <span class="text-2xl">📊</span>
+                        <div class="text-left">
+                            <div class="font-bold">排序数据</div>
+                            <div class="text-xs opacity-70">重新排列</div>
+                        </div>
+                    </button>
+                </div>
+                <!-- 配置表单动态插入区（修正位置，放在.card-body内） -->
+                <div id="ruleConfigPanel" class="mt-4"></div>
+            </div>
+        </div>
+
+
+        <!-- 数据预览区域 -->
+        <div class="card bg-white shadow-xl mb-4">
+            <div class="card-body">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <span class="text-2xl">👁️</span>
+                    <h2 class="text-2xl font-bold text-gray-800">数据预览</h2>
+                </div>
+                <p class="text-sm text-gray-600 text-center mb-6">实时预览处理后的数据结果</p>
+                <!-- 数据统计信息 -->
+                <div id="data-stats" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 hidden">
+                    <div class="stat bg-base-100 rounded-lg">
+                        <div class="stat-title">总行数</div>
+                        <div class="stat-value text-lg" id="total-rows">0</div>
+                    </div>
+                    <div class="stat bg-base-100 rounded-lg">
+                        <div class="stat-title">总列数</div>
+                        <div class="stat-value text-lg" id="total-columns">0</div>
+                    </div>
+                    <div class="stat bg-base-100 rounded-lg">
+                        <div class="stat-title">处理后行数</div>
+                        <div class="stat-value text-lg" id="processed-rows">0</div>
+                    </div>
+                    <div class="stat bg-base-100 rounded-lg">
+                        <div class="stat-title">文件数量</div>
+                        <div class="stat-value text-lg" id="files-count">0</div>
+                    </div>
+                </div>
+                
+                <!-- 预览控制栏 -->
+                <div id="preview-controls" class="flex flex-wrap items-center justify-between mb-4 hidden">
+                    <div class="flex items-center gap-2">
+                        <select id="preview-file-select" class="select select-sm select-bordered" title="选择要预览的文件">
+                            <option value="">选择文件</option>
+                        </select>
+                        <select id="preview-sheet-select" class="select select-sm select-bordered" title="选择要预览的工作表">
+                            <option value="">选择工作表</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">每页显示：</span>
+                        <select id="rows-per-page" class="select select-sm select-bordered" title="选择每页显示行数">
+                            <option value="50">50行</option>
+                            <option value="100" selected>100行</option>
+                            <option value="200">200行</option>
+                            <option value="500">500行</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 数据表格 -->
+                <div id="data-preview" class="overflow-x-auto bg-base-100 rounded-lg min-h-[300px]">
+                    <div class="flex items-center justify-center h-[300px] text-base-content/50">
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-lg">暂无数据预览</p>
+                            <p class="text-sm">请先上传文件</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分页控制 -->
+                <div id="pagination-controls" class="flex items-center justify-between mt-4 hidden">
+                    <div class="text-sm text-base-content/70">
+                        第 <span id="current-page">1</span> 页，共 <span id="total-pages">1</span> 页
+                    </div>
+                    <div class="btn-group">
+                        <button id="prev-page" class="btn btn-sm">«</button>
+                        <button id="page-info" class="btn btn-sm btn-active">1</button>
+                        <button id="next-page" class="btn btn-sm">»</button>
+                    </div>
+                </div>
+                
+                <div class="card-actions justify-between mt-6">
+                    <div class="flex gap-2">
+                        <button id="compare-data" class="btn btn-sm btn-outline hidden">对比原始数据</button>
+                        <button id="refresh-preview" class="btn btn-sm btn-outline hidden">刷新预览</button>
+                    </div>
+                    <div id="export-actions" class="flex gap-2 hidden">
+                        <button id="export-csv" class="btn btn-outline">导出为CSV</button>
+                        <button id="export-excel" class="btn btn-primary">导出为Excel</button>
+                        <button id="export-comparison" class="btn btn-outline">导出对比数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer footer-center p-6 bg-gradient-to-r from-base-300 to-base-200 text-base-content">
+        <div class="text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <span class="font-bold text-lg">RuleXcel</span>
+                <div class="badge badge-primary badge-sm">v1.0</div>
+            </div>
+            <p class="text-sm opacity-75">表格批量处理 · 本地数据 · 自定义规则</p>
+            <div class="flex justify-center gap-4 mt-2 text-xs opacity-60">
+                <span>⚡ 零延迟处理</span>
+                <span>🔒 智能处理</span>
+                <span>🚀 一键导出</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 处理进度模态框 -->
+    <div id="progress-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">数据处理中</h3>
+            
+            <!-- 总体进度 -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span>总体进度</span>
+                    <span id="overall-progress-text">0%</span>
+                </div>
+                <progress id="overall-progress" class="progress progress-primary w-full" value="0" max="100"></progress>
+            </div>
+            
+            <!-- 当前步骤 -->
+            <div class="mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="loading loading-spinner loading-sm"></div>
+                    <span id="current-step" class="text-sm font-medium">准备开始...</span>
+                </div>
+                <div class="text-xs text-base-content/70" id="step-detail">正在初始化数据处理流程</div>
+            </div>
+            
+            <!-- 详细进度 -->
+            <div class="space-y-2">
+                <div class="step-item flex items-center gap-2">
+                    <div id="step1-icon" class="w-4 h-4 rounded-full bg-base-300"></div>
+                    <span class="text-sm">文件解析</span>
+                    <span id="step1-status" class="text-xs text-base-content/50 ml-auto">等待中</span>
+                </div>
+                <div class="step-item flex items-center gap-2">
+                    <div id="step2-icon" class="w-4 h-4 rounded-full bg-base-300"></div>
+                    <span class="text-sm">数据预处理</span>
+                    <span id="step2-status" class="text-xs text-base-content/50 ml-auto">等待中</span>
+                </div>
+                <div class="step-item flex items-center gap-2">
+                    <div id="step3-icon" class="w-4 h-4 rounded-full bg-base-300"></div>
+                    <span class="text-sm">应用规则</span>
+                    <span id="step3-status" class="text-xs text-base-content/50 ml-auto">等待中</span>
+                </div>
+                <div class="step-item flex items-center gap-2">
+                    <div id="step4-icon" class="w-4 h-4 rounded-full bg-base-300"></div>
+                    <span class="text-sm">生成结果</span>
+                    <span id="step4-status" class="text-xs text-base-content/50 ml-auto">等待中</span>
+                </div>
+            </div>
+            
+            <!-- 取消按钮 -->
+            <div class="modal-action">
+                <button id="cancel-processing" class="btn btn-sm btn-outline">取消处理</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误提示模态框 -->
+    <div id="error-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-error">错误</h3>
+            <p id="error-message" class="py-4"></p>
+            <div class="modal-action">
+                <button class="btn" onclick="document.getElementById('error-modal').classList.remove('modal-open')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用脚本 -->
+    <script type="module" src="src/js/main.js"></script>
+</body>
+</html> 

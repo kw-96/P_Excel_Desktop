@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# RuleXcel项目开发规则
+
+## 项目概述
+这是一个纯前端的Excel/CSV文件批量处理工具，使用原生JavaScript开发。
+
+## 开发规范
+1. 使用原生HTML/CSS/JavaScript，不使用框架
+2. 遵循ES6+语法标准
+3. 采用模块化开发，每个功能独立文件
+4. 使用daisyUI进行UI样式设计
+5. 所有操作在浏览器端完成，不涉及服务器交互
+
+## 代码风格
+- 使用camelCase命名函数和变量
+- 使用kebab-case命名文件
+- 使用UPPER_SNAKE_CASE命名常量
+- 每个函数都要有详细的JSDoc注释
+- 错误处理要完善，用户友好的提示信息
+
+## 技术栈
+- 文件解析: SheetJS (xlsx.js)
+- 数据处理: Arquero
+- 规则引擎: JSONLogic + 自定义DSL
+- UI组件: daisyUI
+- 构建工具: 原生开发，无构建步骤
+
+## 特殊要求
+1. 每次修改后更新logs目录下的日志文件
+2. 日志文件按日期命名（YYYY-MM-DD.md）
+3. 记录修改内容、时间和原因
+4. 确保代码可以直接在浏览器中运行
+5. 优先考虑性能和用户体验
+
+## 文件组织
+- 核心功能放在src/js/core/目录
+- UI组件放在src/js/ui/目录  
+- 工具函数放在src/js/utils/目录
+- 样式文件放在src/css/目录
+- 第三方库放在libs/目录
+

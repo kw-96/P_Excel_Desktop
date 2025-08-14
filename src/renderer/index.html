@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P_Excel 桌面版</title>
+    
+    <!-- 样式文件 -->
+    <link href="../../libs/daisyui-4.12.10.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-base-100">
+        <!-- 标题栏 -->
+        <div class="navbar bg-base-200 shadow-lg">
+            <div class="navbar-start">
+                <div class="dropdown">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-center">
+                <a class="btn btn-ghost text-xl">P_Excel 桌面版</a>
+            </div>
+            <div class="navbar-end">
+                <div class="flex items-center gap-2">
+                    <div class="badge badge-primary">v1.0.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <main class="container mx-auto p-4">
+            <!-- 文件上传区域 -->
+            <div class="card bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title">文件上传</h2>
+                    <div id="upload-area" class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
+                        <div class="flex flex-col items-center gap-4">
+                            <svg class="w-12 h-12 text-base-content opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <div>
+                                <p class="text-lg font-medium">拖拽文件到此处或点击选择</p>
+                                <p class="text-sm text-base-content opacity-70">支持 Excel (.xlsx, .xls) 和 CSV 文件</p>
+                                <p class="text-sm text-base-content opacity-70">桌面版支持 GB 级别大文件</p>
+                            </div>
+                        </div>
+                        <input type="file" id="file-input" class="hidden" multiple accept=".xlsx,.xls,.csv">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件列表 -->
+            <div id="file-list" class="card bg-base-100 shadow-xl mb-6 hidden">
+                <div class="card-body">
+                    <h2 class="card-title">已上传文件</h2>
+                    <div id="files-container" class="space-y-2">
+                        <!-- 文件项将在这里动态添加 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据预览 -->
+            <div id="data-preview" class="card bg-base-100 shadow-xl mb-6 hidden">
+                <div class="card-body">
+                    <h2 class="card-title">数据预览</h2>
+                    <div id="preview-container">
+                        <!-- 数据表格将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div id="quick-actions" class="card bg-base-100 shadow-xl mb-6 hidden">
+                <div class="card-body">
+                    <h2 class="card-title">快捷操作</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btn-filter-month" class="btn btn-primary">筛选本月数据</button>
+                        <button id="btn-extract-quality" class="btn btn-secondary">提取优质资源位</button>
+                        <button id="btn-remove-duplicates" class="btn btn-accent">删除重复数据</button>
+                        <button id="btn-sort-by-date" class="btn btn-info">按时间排序</button>
+                        <button id="btn-generate-summary" class="btn btn-success">生成数据摘要</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 处理进度 -->
+            <div id="progress-section" class="card bg-base-100 shadow-xl mb-6 hidden">
+                <div class="card-body">
+                    <h2 class="card-title">处理进度</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <progress id="progress-bar" class="progress progress-primary w-full" value="0" max="100"></progress>
+                            <span id="progress-text" class="text-sm">0%</span>
+                        </div>
+                        <div id="progress-details" class="text-sm text-base-content opacity-70">
+                            准备开始处理...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果导出 -->
+            <div id="export-section" class="card bg-base-100 shadow-xl hidden">
+                <div class="card-body">
+                    <h2 class="card-title">导出结果</h2>
+                    <div class="flex gap-2">
+                        <button id="btn-export-excel" class="btn btn-primary">导出为 Excel</button>
+                        <button id="btn-export-csv" class="btn btn-secondary">导出为 CSV</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 状态栏 -->
+        <footer class="footer footer-center p-4 bg-base-200 text-base-content">
+            <div class="flex items-center gap-4 text-sm">
+                <span id="status-text">就绪</span>
+                <span>|</span>
+                <span id="memory-usage">内存使用: 0 MB</span>
+                <span>|</span>
+                <span id="file-count">文件: 0</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body items-center text-center">
+                <div class="loading loading-spinner loading-lg"></div>
+                <h3 class="font-bold text-lg">处理中...</h3>
+                <p>请稍候，正在处理您的文件</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="js/main.js"></script>
+</body>
+</html>

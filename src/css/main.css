@@ -1,0 +1,378 @@
+/**
+ * RuleXcel - 主要样式文件
+ * 基于daisyUI的自定义样式
+ */
+
+/* 导入组件样式 */
+@import url('./components/quickActions.css');
+
+/* 全局样式 */
+:root {
+  --animation-duration: 0.3s;
+  --border-radius: 0.5rem;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 平滑过渡效果 */
+* {
+  transition: all var(--animation-duration) ease;
+}
+
+/* 文件上传区域样式 */
+.file-upload-area {
+  transition: all var(--animation-duration) ease;
+}
+
+.file-upload-area:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.file-upload-area.dragover {
+  border-color: hsl(var(--primary));
+  background-color: hsl(var(--primary) / 0.05);
+  transform: scale(1.02);
+}
+
+/* 文件列表样式 */
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: hsl(var(--base-100));
+  border: 1px solid hsl(var(--base-300));
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+}
+
+.file-item:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-1px);
+}
+
+/* 文件列表滚动区域样式 */
+#file-items {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--base-300));
+}
+
+#file-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+#file-items::-webkit-scrollbar-track {
+  background: hsl(var(--base-200));
+  border-radius: 3px;
+}
+
+#file-items::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 3px;
+  transition: background var(--animation-duration) ease;
+}
+
+#file-items::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+.file-item__info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-item__icon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--primary) / 0.1);
+  border-radius: 50%;
+  color: hsl(var(--primary));
+}
+
+.file-item__details h4 {
+  font-weight: 600;
+  margin: 0;
+}
+
+.file-item__details p {
+  font-size: 0.875rem;
+  color: hsl(var(--base-content) / 0.7);
+  margin: 0;
+}
+
+.file-item__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 数据表格样式 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: hsl(var(--base-100));
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+}
+
+.data-table th {
+  background: hsl(var(--base-200));
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid hsl(var(--base-300));
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--base-300) / 0.5);
+}
+
+.data-table tbody tr:hover {
+  background: hsl(var(--base-200) / 0.5);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 标签页样式增强 */
+.tabs .tab {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  transition: all var(--animation-duration) ease;
+}
+
+.tabs .tab:hover {
+  background: hsl(var(--base-200));
+}
+
+.tabs .tab.tab-active {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-content));
+  border-color: hsl(var(--primary));
+}
+
+/* 规则编辑器样式 */
+.rule-editor {
+  position: relative;
+}
+
+.rule-editor__textarea {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.rule-editor__suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: hsl(var(--base-100));
+  border: 1px solid hsl(var(--base-300));
+  border-top: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.rule-suggestion {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid hsl(var(--base-300) / 0.5);
+}
+
+.rule-suggestion:hover {
+  background: hsl(var(--base-200));
+}
+
+.rule-suggestion:last-child {
+  border-bottom: none;
+}
+
+/* 快捷按钮动画 */
+.quick-action-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.quick-action-btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 数据统计卡片 */
+.stats-card {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  color: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-medium);
+}
+
+.stats-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.stats-card__label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 成功/错误提示样式 */
+.alert {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-success {
+  background: hsl(var(--success) / 0.1);
+  color: hsl(var(--success));
+  border: 1px solid hsl(var(--success) / 0.3);
+}
+
+.alert-error {
+  background: hsl(var(--error) / 0.1);
+  color: hsl(var(--error));
+  border: 1px solid hsl(var(--error) / 0.3);
+}
+
+.alert-warning {
+  background: hsl(var(--warning) / 0.1);
+  color: hsl(var(--warning));
+  border: 1px solid hsl(var(--warning) / 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .stats {
+    flex-direction: column;
+  }
+  
+  .data-table {
+    font-size: 0.875rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .navbar,
+  .card-actions,
+  .btn,
+  footer {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .data-table {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+/* 无障碍样式 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 焦点样式 */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--base-200));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--base-300));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+} 

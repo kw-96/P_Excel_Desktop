@@ -1,0 +1,281 @@
+/**
+ * P_Excel桌面版主样式文件
+ */
+
+/* 全局样式 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: hsl(var(--b2));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--bc) / 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--bc) / 0.5);
+}
+
+/* 文件拖拽区域 */
+#upload-area {
+    transition: all 0.3s ease;
+}
+
+#upload-area:hover {
+    background-color: hsl(var(--b2));
+}
+
+#upload-area.drag-over {
+    border-color: hsl(var(--p));
+    background-color: hsl(var(--p) / 0.1);
+    transform: scale(1.02);
+}
+
+/* 文件项样式 */
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid hsl(var(--b3));
+    border-radius: 8px;
+    background-color: hsl(var(--b1));
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    background-color: hsl(var(--b2));
+    border-color: hsl(var(--bc) / 0.2);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.file-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+}
+
+.file-icon.excel {
+    background-color: #217346;
+}
+
+.file-icon.csv {
+    background-color: #0078d4;
+}
+
+.file-details h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: hsl(var(--bc));
+}
+
+.file-details p {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: hsl(var(--bc) / 0.7);
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 数据表格样式 */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid hsl(var(--b3));
+}
+
+.data-table th {
+    background-color: hsl(var(--b2));
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table tr:hover {
+    background-color: hsl(var(--b2) / 0.5);
+}
+
+/* 分页控件 */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* 进度条增强 */
+.progress-container {
+    position: relative;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: hsl(var(--pc));
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 状态指示器 */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.status-ready .status-dot {
+    color: hsl(var(--su));
+}
+
+.status-processing .status-dot {
+    color: hsl(var(--wa));
+    animation: pulse 1.5s infinite;
+}
+
+.status-error .status-dot {
+    color: hsl(var(--er));
+}
+
+/* 动画 */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .card-body {
+        padding: 16px;
+    }
+    
+    .navbar {
+        padding: 0 16px;
+    }
+    
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .file-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .data-table {
+        font-size: 12px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 6px 8px;
+    }
+}
+
+/* 深色主题适配 */
+[data-theme="dark"] {
+    .file-item {
+        border-color: hsl(var(--b3));
+    }
+    
+    .data-table th {
+        background-color: hsl(var(--b3));
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .navbar,
+    .footer,
+    #quick-actions,
+    #export-section {
+        display: none;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .data-table {
+        font-size: 12px;
+    }
+}
